@@ -1,0 +1,1057 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="books-page">
+
+    <!-- PAGE HEADER -->
+    <div class="page-head books-header">
+
+        <div>
+            <div class="eyebrow">LIBRARY CATALOGUE</div>
+
+            <h1>
+                {{ 'Books' if user['role']=='admin' else 'Browse Books' }}
+            </h1>
+
+            <p class="muted">
+                {{ 'Manage your library catalogue and availability.'
+                   if user['role']=='admin'
+                   else 'Explore books currently available in the library.' }}
+            </p>
+        </div>
+
+        {% if user['role']=='admin' %}
+
+        <button
+            class="btn btn-primary add-book-btn"
+            onclick="openModal('addBook')"
+        >
+            <span class="plus-icon">+</span>
+            Add Book
+        </button>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- SEARCH / FILTER -->
+    <form class="book-toolbar" method="get">
+
+        <div class="search-box">
+
+            <span class="search-icon">⌕</span>
+
+            <input
+                class="input"
+                name="q"
+                value="{{ q }}"
+                placeholder="Search by title, author or ISBN..."
+            >
+
+        </div>
+
+
+        <select class="select category-filter" name="category">
+
+            <option value="All">All Categories</option>
+
+            {% for c in categories %}
+
+            <option
+                value="{{ c }}"
+                {% if category == c %}selected{% endif %}
+            >
+                {{ c }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <button class="btn btn-secondary search-btn">
+            Search
+        </button>
+
+    </form>
+
+
+    <!-- RESULTS INFO -->
+    <div class="books-result-bar">
+
+        <span>
+            <strong>{{ books|length }}</strong>
+            {{ 'books' if books|length != 1 else 'book' }} found
+        </span>
+
+        {% if q %}
+        <span class="result-query">
+            Search: "{{ q }}"
+        </span>
+        {% endif %}
+
+    </div>
+
+
+    <!-- BOOK GRID -->
+    <div class="book-grid">
+
+        {% for b in books %}
+
+        <div class="book-card">
+
+            <!-- COVER -->
+            <div class="book-cover">
+
+                <div class="book-cover-inner">
+                    <span class="cover-icon">▣</span>
+                    <span class="cover-title">
+                        {{ b.title[:28] }}
+                    </span>
+                </div>
+
+            </div>
+
+
+            <!-- BOOK CONTENT -->
+            <div class="book-content">
+
+                <div class="book-category">
+                    {{ b.category }}
+                </div>
+
+
+                <h3 class="book-title">
+                    {{ b.title }}
+                </h3>
+
+
+                <p class="book-author">
+                    by {{ b.author }}
+                </p>
+
+
+                {% if b.isbn %}
+
+                <div class="book-isbn">
+                    ISBN {{ b.isbn }}
+                </div>
+
+                {% endif %}
+
+
+                <div class="book-tags">
+
+                    {% if b.rack_location %}
+
+                    <span class="book-tag">
+                        Rack {{ b.rack_location }}
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- AVAILABILITY -->
+                <div class="availability-row">
+
+                    <div>
+
+                        <div class="availability-label">
+                            Availability
+                        </div>
+
+                        <div class="availability-count">
+                            <strong>
+                                {{ b.available_copies }}
+                            </strong>
+
+                            <span>
+                                / {{ b.total_copies }} copies
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    {% if b.available_copies > 0 %}
+
+                    <span class="availability available">
+                        Available
+                    </span>
+
+                    {% else %}
+
+                    <span class="availability unavailable">
+                        Out of stock
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- ADMIN ACTIONS -->
+                {% if user['role']=='admin' %}
+
+                <div class="book-actions">
+
+                    <button
+                        class="btn btn-secondary action-btn"
+                        onclick="openModal('edit{{ b.id }}')"
+                    >
+                        Edit
+                    </button>
+
+
+                    <form
+                        method="post"
+                        action="{{ url_for('delete_book', book_id=b.id) }}"
+                        onsubmit="return confirm('Delete this book?')"
+                    >
+
+                        <button
+                            class="btn btn-danger action-btn"
+                            type="submit"
+                        >
+                            Delete
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- EDIT BOOK MODAL -->
+
+        {% if user['role']=='admin' %}
+
+        <dialog
+            class="modal"
+            id="edit{{ b.id }}"
+        >
+
+            <div class="modal-body">
+
+                <div class="modal-head">
+
+                    <div>
+                        <div class="eyebrow">
+                            BOOK MANAGEMENT
+                        </div>
+
+                        <h3>Edit Book</h3>
+                    </div>
+
+                    <button
+                        class="close"
+                        type="button"
+                        onclick="closeModal('edit{{ b.id }}')"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <form
+                    method="post"
+                    action="{{ url_for('edit_book', book_id=b.id) }}"
+                >
+
+                    <div class="form-grid">
+
+                        <div class="field">
+
+                            <label>Book Title</label>
+
+                            <input
+                                class="input"
+                                name="title"
+                                value="{{ b.title }}"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>Author</label>
+
+                            <input
+                                class="input"
+                                name="author"
+                                value="{{ b.author }}"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>ISBN</label>
+
+                            <input
+                                class="input"
+                                name="isbn"
+                                value="{{ b.isbn }}"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>Category</label>
+
+                            <select
+                                class="select"
+                                name="category"
+                            >
+
+                                {% for c in [
+                                    'Fiction',
+                                    'Non-fiction',
+                                    'Science',
+                                    'Technology',
+                                    'History',
+                                    'Biography',
+                                    'Academic',
+                                    'Other'
+                                ] %}
+
+                                <option
+                                    value="{{ c }}"
+                                    {% if b.category == c %}selected{% endif %}
+                                >
+                                    {{ c }}
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>Total Copies</label>
+
+                            <input
+                                class="input"
+                                type="number"
+                                min="1"
+                                name="total_copies"
+                                value="{{ b.total_copies }}"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>Available Copies</label>
+
+                            <input
+                                class="input"
+                                type="number"
+                                min="0"
+                                name="available_copies"
+                                value="{{ b.available_copies }}"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="field full">
+
+                            <label>Rack Location</label>
+
+                            <input
+                                class="input"
+                                name="rack_location"
+                                value="{{ b.rack_location }}"
+                                placeholder="A-12"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="closeModal('edit{{ b.id }}')"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Save Changes
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </dialog>
+
+        {% endif %}
+
+
+        {% else %}
+
+        <!-- EMPTY STATE -->
+
+        <div class="book-empty">
+
+            <div class="empty-icon">
+                ▣
+            </div>
+
+            <h3>No books found</h3>
+
+            <p>
+                Try changing your search or category filter.
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- ADD BOOK MODAL -->
+
+    {% if user['role']=='admin' %}
+
+    <dialog
+        class="modal"
+        id="addBook"
+    >
+
+        <div class="modal-body">
+
+            <div class="modal-head">
+
+                <div>
+
+                    <div class="eyebrow">
+                        LIBRARY MANAGEMENT
+                    </div>
+
+                    <h3>Add New Book</h3>
+
+                </div>
+
+
+                <button
+                    class="close"
+                    type="button"
+                    onclick="closeModal('addBook')"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form
+                method="post"
+                action="{{ url_for('add_book') }}"
+            >
+
+                <div class="form-grid">
+
+                    <div class="field">
+
+                        <label>Book Title</label>
+
+                        <input
+                            class="input"
+                            name="title"
+                            placeholder="The Great Gatsby"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>Author</label>
+
+                        <input
+                            class="input"
+                            name="author"
+                            placeholder="F. Scott Fitzgerald"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>ISBN</label>
+
+                        <input
+                            class="input"
+                            name="isbn"
+                            placeholder="978-..."
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>Category</label>
+
+                        <select
+                            class="select"
+                            name="category"
+                        >
+
+                            <option>Other</option>
+                            <option>Fiction</option>
+                            <option>Non-fiction</option>
+                            <option>Science</option>
+                            <option>Technology</option>
+                            <option>History</option>
+                            <option>Biography</option>
+                            <option>Academic</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>Total Copies</label>
+
+                        <input
+                            class="input"
+                            type="number"
+                            min="1"
+                            name="total_copies"
+                            value="1"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>Rack Location</label>
+
+                        <input
+                            class="input"
+                            name="rack_location"
+                            placeholder="A-12"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="closeModal('addBook')"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Add Book
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </dialog>
+
+    {% endif %}
+
+</div>
+
+
+<!-- BOOK PAGE STYLES -->
+
+<style>
+
+.books-page {
+    max-width: 1400px;
+    margin: auto;
+}
+
+
+/* HEADER */
+
+.books-header {
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+    color: #98a2b3;
+    margin-bottom: 6px;
+}
+
+.books-header h1 {
+    margin: 0;
+    font-size: 28px;
+    letter-spacing: -.7px;
+    color: #101828;
+}
+
+.books-header p {
+    margin: 6px 0 0;
+}
+
+
+/* ADD BUTTON */
+
+.add-book-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.plus-icon {
+    font-size: 19px;
+    line-height: 1;
+}
+
+
+/* TOOLBAR */
+
+.book-toolbar {
+    display: flex;
+    gap: 10px;
+    padding: 13px;
+    background: white;
+    border: 1px solid #eaecf0;
+    border-radius: 13px;
+    margin-bottom: 15px;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+}
+
+.search-box .input {
+    padding-left: 40px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #98a2b3;
+    font-size: 20px;
+    z-index: 2;
+}
+
+.category-filter {
+    width: 180px;
+}
+
+.search-btn {
+    min-width: 90px;
+}
+
+
+/* RESULT BAR */
+
+.books-result-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #667085;
+    font-size: 12px;
+    margin: 18px 2px;
+}
+
+.books-result-bar strong {
+    color: #101828;
+}
+
+.result-query {
+    color: #98a2b3;
+}
+
+
+/* GRID */
+
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
+    gap: 18px;
+}
+
+
+/* BOOK CARD */
+
+.book-card {
+    background: white;
+    border: 1px solid #eaecf0;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(16,24,40,.08);
+}
+
+
+/* COVER */
+
+.book-cover {
+    height: 175px;
+    padding: 18px;
+    background: #f2f4f7;
+}
+
+.book-cover-inner {
+    height: 100%;
+    border-radius: 9px;
+    background: #111827;
+    color: white;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 8px 20px rgba(16,24,40,.18);
+}
+
+.cover-icon {
+    font-size: 26px;
+    opacity: .7;
+}
+
+.cover-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+    max-width: 90%;
+}
+
+
+/* CONTENT */
+
+.book-content {
+    padding: 17px;
+}
+
+.book-category {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: #667085;
+    background: #f2f4f7;
+    padding: 5px 8px;
+    border-radius: 6px;
+    margin-bottom: 9px;
+}
+
+.book-title {
+    font-size: 16px;
+    color: #101828;
+    margin: 0;
+    line-height: 1.35;
+}
+
+.book-author {
+    color: #667085;
+    font-size: 12px;
+    margin: 5px 0;
+}
+
+.book-isbn {
+    color: #98a2b3;
+    font-size: 10px;
+    margin-top: 8px;
+}
+
+.book-tags {
+    min-height: 27px;
+    margin-top: 10px;
+}
+
+.book-tag {
+    display: inline-block;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: #f9fafb;
+    border: 1px solid #eaecf0;
+    color: #667085;
+    font-size: 10px;
+}
+
+
+/* AVAILABILITY */
+
+.availability-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    padding-top: 13px;
+    margin-top: 13px;
+    border-top: 1px solid #f0f1f3;
+}
+
+.availability-label {
+    color: #98a2b3;
+    font-size: 9px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: .5px;
+}
+
+.availability-count {
+    margin-top: 3px;
+    color: #667085;
+    font-size: 11px;
+}
+
+.availability-count strong {
+    color: #101828;
+    font-size: 14px;
+}
+
+.availability {
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.availability.available {
+    color: #027a48;
+    background: #ecfdf3;
+}
+
+.availability.unavailable {
+    color: #b42318;
+    background: #fef3f2;
+}
+
+
+/* ACTIONS */
+
+.book-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.book-actions form {
+    flex: 1;
+}
+
+.action-btn {
+    width: 100%;
+    padding: 8px 10px;
+}
+
+
+/* EMPTY */
+
+.book-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 70px 20px;
+    background: white;
+    border: 1px dashed #d0d5dd;
+    border-radius: 15px;
+}
+
+.empty-icon {
+    width: 52px;
+    height: 52px;
+    margin: auto;
+    display: grid;
+    place-items: center;
+    background: #f2f4f7;
+    border-radius: 14px;
+    font-size: 22px;
+    color: #667085;
+}
+
+.book-empty h3 {
+    margin: 15px 0 5px;
+}
+
+.book-empty p {
+    color: #98a2b3;
+    font-size: 12px;
+}
+
+
+/* MODAL */
+
+.modal {
+    border: none;
+    padding: 0;
+    border-radius: 16px;
+    width: min(650px, 94vw);
+    box-shadow: 0 25px 70px rgba(16,24,40,.22);
+}
+
+.modal::backdrop {
+    background: rgba(16,24,40,.48);
+    backdrop-filter: blur(3px);
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 22px;
+}
+
+.modal-head h3 {
+    margin: 0;
+    font-size: 19px;
+    color: #101828;
+}
+
+.close {
+    border: none;
+    background: #f2f4f7;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #667085;
+}
+
+.close:hover {
+    background: #eaecf0;
+}
+
+
+/* FORM */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field.full {
+    grid-column: 1 / -1;
+}
+
+.field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #344054;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 22px;
+    padding-top: 17px;
+    border-top: 1px solid #eaecf0;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+
+    .book-toolbar {
+        flex-direction: column;
+    }
+
+    .category-filter {
+        width: 100%;
+    }
+
+    .search-btn {
+        width: 100%;
+    }
+
+    .books-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
+
+    .add-book-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .field.full {
+        grid-column: auto;
+    }
+
+}
+
+</style>
+
+{% endblock %}

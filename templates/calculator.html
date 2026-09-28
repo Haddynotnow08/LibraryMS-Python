@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .calculator-page{max-width:1050px;margin:0 auto}
+    .calculator-head{margin-bottom:22px}.calculator-title{margin:0;color:#111827;font-size:30px;line-height:1.1;letter-spacing:-.9px}.calculator-subtitle{margin:7px 0 0;color:#6b7280;font-size:13px}
+    .calculator-layout{display:grid;grid-template-columns:minmax(0,520px) minmax(0,1fr);gap:20px;align-items:start}
+    .calculator-card{padding:18px!important;border-radius:22px;background:#111827;border-color:#111827;box-shadow:0 20px 50px rgba(15,23,42,.18)}
+    .calc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;color:#9ca3af}.calc-brand{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.calc-mode{padding:5px 8px;border:1px solid rgba(255,255,255,.1);border-radius:7px;color:#cbd5e1;font-size:9px}
+    .calc-display{min-height:108px;padding:18px 17px;margin-bottom:12px;border:1px solid rgba(255,255,255,.08);border-radius:17px;background:#0b1220;display:flex;flex-direction:column;justify-content:flex-end;text-align:right;overflow:hidden}
+    .calc-expression{min-height:21px;color:#94a3b8;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.calc-result{margin-top:5px;color:#fff;font-size:39px;line-height:1.05;font-weight:700;letter-spacing:-1.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.calc-key{height:58px;border:1px solid rgba(255,255,255,.07);border-radius:13px;background:#1f2937;color:#f8fafc;font-size:17px;font-weight:700;cursor:pointer;transition:.13s ease}.calc-key:hover{background:#273449}.calc-key:active{transform:scale(.97)}.calc-key.action{color:#cbd5e1;background:#172033}.calc-key.operator{color:#fff;background:#3730a3}.calc-key.equal{color:#fff;background:#4f46e5;grid-row:span 2;height:auto}.calc-key.zero{grid-column:span 2}
+    .calc-help{margin-top:10px;color:#64748b;font-size:10px;text-align:center}.calc-history-card{padding:20px!important}.side-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}.side-title{margin:0;color:#111827;font-size:15px}.side-caption{margin-top:4px;color:#9ca3af;font-size:10px}.clear-history{border:1px solid #e5e7eb;background:#fff;color:#6b7280;border-radius:8px;padding:7px 9px;font-size:10px;font-weight:700;cursor:pointer}.clear-history:hover{background:#f8fafc;color:#374151}.history-list{display:grid;gap:8px;max-height:500px;overflow:auto}.history-item{padding:11px 12px;border:1px solid #edf0f5;border-radius:10px;background:#fafbfc}.history-exp{color:#9ca3af;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.history-res{margin-top:4px;color:#111827;font-size:13px;font-weight:800}.history-empty{padding:48px 12px;text-align:center;color:#9ca3af;font-size:11px;border:1px dashed #dfe3eb;border-radius:12px}
+    .keyboard-note{margin-top:14px;padding:12px;border-radius:11px;background:#f8fafc;border:1px solid #eef0f4;color:#8b93a3;font-size:10px;line-height:1.55}.keyboard-note strong{color:#475569}
+    @media(max-width:850px){.calculator-layout{grid-template-columns:1fr}.calc-history-card{min-height:250px}}@media(max-width:480px){.calculator-title{font-size:26px}.calculator-card{padding:14px!important}.calc-key{height:54px;font-size:16px}.calc-result{font-size:34px}}
+</style>
+
+<div class="calculator-page">
+    <div class="calculator-head">
+        <h1 class="calculator-title">Calculator</h1>
+        <p class="calculator-subtitle">A fast, clean calculator for everyday library and study calculations.</p>
+    </div>
+
+    <div class="calculator-layout">
+        <section class="card calculator-card">
+            <div class="calc-top"><span class="calc-brand">LibraryMS Calculator</span><span class="calc-mode">STANDARD</span></div>
+
+            <div class="calc-display">
+                <div id="calcExpression" class="calc-expression"></div>
+                <div id="calcResult" class="calc-result">0</div>
+            </div>
+
+            <div class="calc-grid">
+                <button class="calc-key action" data-key="clear">AC</button>
+                <button class="calc-key action" data-key="backspace">⌫</button>
+                <button class="calc-key action" data-key="percent">%</button>
+                <button class="calc-key operator" data-key="/">÷</button>
+
+                <button class="calc-key" data-key="7">7</button>
+                <button class="calc-key" data-key="8">8</button>
+                <button class="calc-key" data-key="9">9</button>
+                <button class="calc-key operator" data-key="*">×</button>
+
+                <button class="calc-key" data-key="4">4</button>
+                <button class="calc-key" data-key="5">5</button>
+                <button class="calc-key" data-key="6">6</button>
+                <button class="calc-key operator" data-key="-">−</button>
+
+                <button class="calc-key" data-key="1">1</button>
+                <button class="calc-key" data-key="2">2</button>
+                <button class="calc-key" data-key="3">3</button>
+                <button class="calc-key operator" data-key="+">+</button>
+
+                <button class="calc-key zero" data-key="0">0</button>
+                <button class="calc-key" data-key=".">.</button>
+                <button class="calc-key equal" data-key="=">=</button>
+            </div>
+
+            <div class="calc-help">Keyboard: 0–9 · + − × ÷ · Enter = · Backspace · Esc</div>
+        </section>
+
+        <aside class="card calc-history-card">
+            <div class="side-head">
+                <div><h2 class="side-title">Calculation History</h2><div class="side-caption">Saved in this browser</div></div>
+                <button id="clearHistory" class="clear-history" type="button">Clear</button>
+            </div>
+            <div id="historyList" class="history-list"></div>
+            <div class="keyboard-note"><strong>Tip:</strong> You can type calculations directly from your keyboard, for example <strong>250*14</strong> and press Enter.</div>
+        </aside>
+    </div>
+</div>
+
+<script>
+(function () {
+    const resultEl = document.getElementById('calcResult');
+    const expressionEl = document.getElementById('calcExpression');
+    const historyList = document.getElementById('historyList');
+    const buttons = document.querySelectorAll('.calc-key');
+    const historyKey = 'libraryms_calculator_history';
+
+    let expression = '';
+    let justEvaluated = false;
+
+    function formatNumber(value) {
+        if (!Number.isFinite(value)) return 'Error';
+        const rounded = Math.abs(value) < 1e-12 ? 0 : Number(value.toPrecision(12));
+        return String(rounded);
+    }
+
+    function evaluateExpression(input) {
+        const tokens = [];
+        let number = '';
+        const pushNumber = () => {
+            if (number === '' || number === '.') throw new Error('Invalid number');
+            tokens.push(parseFloat(number));
+            number = '';
+        };
+
+        for (let i = 0; i < input.length; i++) {
+            const c = input[i];
+            if (/\d|\./.test(c)) {
+                number += c;
+            } else if ('+-*/'.includes(c)) {
+                if (c === '-' && (tokens.length === 0 || typeof tokens[tokens.length - 1] === 'string')) {
+                    number = '-';
+                } else {
+                    pushNumber();
+                    tokens.push(c);
+                }
+            } else if (c === ' ') {
+                continue;
+            } else {
+                throw new Error('Invalid character');
+            }
+        }
+        pushNumber();
+
+        function applyOps(list, ops) {
+            const out = [];
+            for (let i = 0; i < list.length; i++) {
+                const item = list[i];
+                if (typeof item === 'string' && ops.includes(item)) {
+                    const a = out.pop();
+                    const b = list[++i];
+                    if (item === '/' && b === 0) throw new Error('Cannot divide by zero');
+                    let value;
+                    if (item === '*') value = a * b;
+                    if (item === '/') value = a / b;
+                    out.push(value);
+                } else {
+                    out.push(item);
+                }
+            }
+            return out;
+        }
+
+        let reduced = applyOps(tokens, ['*', '/']);
+        let total = reduced[0];
+        for (let i = 1; i < reduced.length; i += 2) {
+            const op = reduced[i], b = reduced[i + 1];
+            total = op === '+' ? total + b : total - b;
+        }
+        return total;
+    }
+
+    function render() {
+        expressionEl.textContent = expression ? expression.replace(/\*/g, '×').replace(/\//g, '÷').replace(/-/g, '−') : '';
+        resultEl.textContent = expression ? resultEl.textContent : '0';
+    }
+
+    function append(value) {
+        if (justEvaluated && /\d|\./.test(value)) expression = '';
+        justEvaluated = false;
+        if (value === '.') {
+            const last = expression.split(/[+\-*/]/).pop();
+            if (last.includes('.')) return;
+            if (!last) expression += '0';
+        }
+        if ('+-*/'.includes(value)) {
+            if (!expression && value !== '-') return;
+            if ('+-*/'.includes(expression.slice(-1))) {
+                expression = expression.slice(0, -1) + value;
+                return;
+            }
+        }
+        expression += value;
+    }
+
+    function calculate(save = true) {
+        if (!expression) return;
+        try {
+            const value = evaluateExpression(expression);
+            const result = formatNumber(value);
+            resultEl.textContent = result;
+            expressionEl.textContent = expression.replace(/\*/g, '×').replace(/\//g, '÷').replace(/-/g, '−');
+            if (save && result !== 'Error') addHistory(expression, result);
+            expression = result === 'Error' ? '' : result;
+            justEvaluated = result !== 'Error';
+        } catch (e) {
+            resultEl.textContent = 'Error';
+            justEvaluated = false;
+        }
+    }
+
+    function percent() {
+        if (!expression) return;
+        const match = expression.match(/(-?\d*\.?\d+)$/);
+        if (!match) return;
+        const value = parseFloat(match[1]) / 100;
+        expression = expression.slice(0, -match[1].length) + formatNumber(value);
+        resultEl.textContent = expression;
+        expressionEl.textContent = '';
+    }
+
+    function addHistory(exp, result) {
+        const items = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        items.unshift({ exp, result });
+        localStorage.setItem(historyKey, JSON.stringify(items.slice(0, 20)));
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const items = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        if (!items.length) {
+            historyList.innerHTML = '<div class="history-empty">No calculations yet.</div>';
+            return;
+        }
+        historyList.innerHTML = items.map(item =>
+            '<div class="history-item"><div class="history-exp">' + escapeHtml(item.exp.replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−')) + '</div><div class="history-res">= ' + escapeHtml(item.result) + '</div></div>'
+        ).join('');
+    }
+
+    function escapeHtml(value) {
+        return value.replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const key = btn.dataset.key;
+            if (key === 'clear') {
+                expression = ''; resultEl.textContent = '0'; expressionEl.textContent = ''; justEvaluated = false;
+            } else if (key === 'backspace') {
+                expression = expression.slice(0, -1); resultEl.textContent = expression || '0'; justEvaluated = false; render();
+            } else if (key === 'percent') {
+                percent();
+            } else if (key === '=') {
+                calculate(true);
+            } else {
+                append(key); resultEl.textContent = expression || '0'; render();
+            }
+        });
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key >= '0' && e.key <= '9') append(e.key);
+        else if (['+','-','*','/','.'].includes(e.key)) append(e.key);
+        else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calculate(true); return; }
+        else if (e.key === 'Backspace') expression = expression.slice(0,-1);
+        else if (e.key === 'Escape') { expression=''; resultEl.textContent='0'; expressionEl.textContent=''; }
+        else return;
+        resultEl.textContent = expression || '0'; render();
+    });
+
+    document.getElementById('clearHistory').addEventListener('click', () => {
+        localStorage.removeItem(historyKey); renderHistory();
+    });
+
+    renderHistory();
+})();
+</script>
+
+{% endblock %}

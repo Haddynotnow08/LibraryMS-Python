@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {{ 'Create account' if signup else 'Sign in' }} — LibraryMS
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(99,102,241,.18), transparent 30%),
+                radial-gradient(circle at 90% 90%, rgba(59,130,246,.13), transparent 30%),
+                #f7f8fc;
+        }
+
+        .auth-page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+        }
+
+        /* =========================
+           LEFT SIDE
+        ========================== */
+
+        .auth-visual {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px 58px;
+            color: #ffffff;
+            background:
+                linear-gradient(145deg, #111827 0%, #1e1b4b 48%, #312e81 100%);
+        }
+
+        .auth-visual::before,
+        .auth-visual::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(2px);
+            pointer-events: none;
+        }
+
+        .auth-visual::before {
+            width: 420px;
+            height: 420px;
+            background: rgba(129,140,248,.13);
+            top: -170px;
+            right: -130px;
+        }
+
+        .auth-visual::after {
+            width: 320px;
+            height: 320px;
+            background: rgba(99,102,241,.1);
+            bottom: -160px;
+            left: -100px;
+        }
+
+        .visual-content,
+        .visual-footer,
+        .auth-brand {
+            position: relative;
+            z-index: 2;
+        }
+
+        .auth-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            width: fit-content;
+            color: #fff;
+            text-decoration: none;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -.4px;
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.14);
+            box-shadow: 0 10px 30px rgba(0,0,0,.18);
+        }
+
+        .visual-content {
+            max-width: 650px;
+            margin: auto 0;
+            padding: 65px 0;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #c7d2fe;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.1);
+        }
+
+        .eyebrow-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #a5b4fc;
+            box-shadow: 0 0 12px rgba(165,180,252,.9);
+        }
+
+        .visual-title {
+            margin: 22px 0 16px;
+            font-size: clamp(42px, 5vw, 68px);
+            line-height: 1.02;
+            letter-spacing: -2.8px;
+            font-weight: 850;
+        }
+
+        .visual-title span {
+            color: #a5b4fc;
+        }
+
+        .visual-description {
+            max-width: 580px;
+            margin: 0;
+            color: #cbd5e1;
+            font-size: 16px;
+            line-height: 1.75;
+        }
+
+        .feature-row {
+            display: flex;
+            gap: 14px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .feature {
+            min-width: 125px;
+            padding: 15px 17px;
+            border-radius: 15px;
+            background: rgba(255,255,255,.055);
+            border: 1px solid rgba(255,255,255,.09);
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-number {
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: -.5px;
+        }
+
+        .feature-label {
+            margin-top: 3px;
+            color: #aeb9cb;
+            font-size: 12px;
+        }
+
+        .quote-card {
+            position: relative;
+            z-index: 2;
+            max-width: 580px;
+            padding: 21px 22px;
+            border-radius: 18px;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.11);
+            backdrop-filter: blur(14px);
+        }
+
+        .quote {
+            font-size: 14px;
+            line-height: 1.65;
+            color: #f8fafc;
+        }
+
+        .quote-author {
+            margin-top: 9px;
+            color: #b8c3d7;
+            font-size: 12px;
+        }
+
+        .visual-footer {
+            color: #8f9bb0;
+            font-size: 11px;
+        }
+
+        /* =========================
+           RIGHT SIDE
+        ========================== */
+
+        .auth-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: #ffffff;
+        }
+
+        .auth-box {
+            width: min(430px, 100%);
+        }
+
+        .mobile-brand {
+            display: none;
+        }
+
+        .auth-heading {
+            margin-bottom: 30px;
+        }
+
+        .auth-heading h1 {
+            margin: 0;
+            font-size: 34px;
+            line-height: 1.1;
+            letter-spacing: -1.2px;
+            color: #111827;
+        }
+
+        .auth-heading p {
+            margin: 9px 0 0;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .flash {
+            margin-bottom: 18px;
+            padding: 12px 14px;
+            border-radius: 11px;
+            font-size: 13px;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input {
+            width: 100%;
+            height: 50px;
+            padding: 0 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            outline: none;
+            background: #f9fafb;
+            color: #111827;
+            font-size: 14px;
+            transition: .2s ease;
+        }
+
+        .input::placeholder {
+            color: #9ca3af;
+        }
+
+        .input:hover {
+            border-color: #cfd5e1;
+            background: #fff;
+        }
+
+        .input:focus {
+            border-color: #6366f1;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(99,102,241,.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            height: 50px;
+            margin-top: 3px;
+            border: 0;
+            border-radius: 12px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 750;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            box-shadow: 0 10px 24px rgba(79,70,229,.2);
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 30px rgba(79,70,229,.28);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+            color: #9ca3af;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .info-box {
+            padding: 13px 14px;
+            border-radius: 11px;
+            background: #f8fafc;
+            border: 1px solid #eef2f7;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .auth-switch {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .auth-switch a {
+            color: #4f46e5;
+            font-weight: 750;
+            text-decoration: none;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .security-note {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+            margin-top: 27px;
+            color: #9ca3af;
+            font-size: 11px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @media (max-width: 900px) {
+            .auth-page {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-visual {
+                display: none;
+            }
+
+            .auth-panel {
+                min-height: 100vh;
+                padding: 28px 20px;
+                background:
+                    radial-gradient(circle at top right, rgba(99,102,241,.09), transparent 28%),
+                    #f8fafc;
+            }
+
+            .mobile-brand {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 28px;
+            }
+
+            .mobile-brand-inner {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 20px;
+                font-weight: 800;
+                color: #111827;
+            }
+
+            .mobile-brand-mark {
+                width: 40px;
+                height: 40px;
+                display: grid;
+                place-items: center;
+                border-radius: 11px;
+                color: #fff;
+                background: linear-gradient(135deg, #4f46e5, #6366f1);
+            }
+
+            .auth-box {
+                background: rgba(255,255,255,.94);
+                border: 1px solid #eef0f5;
+                border-radius: 22px;
+                padding: 28px;
+                box-shadow: 0 18px 50px rgba(15,23,42,.08);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-box {
+                padding: 23px 19px;
+                border-radius: 18px;
+            }
+
+            .auth-heading h1 {
+                font-size: 29px;
+            }
+
+            .input,
+            .submit-btn {
+                height: 48px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="auth-page">
+
+    <!-- =========================
+         LEFT / BRANDING
+    ========================== -->
+
+    <section class="auth-visual">
+
+        <a href="{{ url_for('login') }}" class="auth-brand">
+            <span class="brand-mark">▤</span>
+            <span>LibraryMS</span>
+        </a>
+
+        <div class="visual-content">
+
+            <div class="eyebrow">
+                <span class="eyebrow-dot"></span>
+                Smart Library Management
+            </div>
+
+            <h1 class="visual-title">
+                Your Library,<br>
+                <span>Reimagined.</span>
+            </h1>
+
+            <p class="visual-description">
+                Manage books, members, borrowings and library activity
+                from one simple and organized platform.
+            </p>
+
+            <div class="feature-row">
+
+                <div class="feature">
+                    <div class="feature-number">500+</div>
+                    <div class="feature-label">Books</div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-number">200+</div>
+                    <div class="feature-label">Members</div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-number">24/7</div>
+                    <div class="feature-label">Access</div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="quote-card">
+            <div class="quote">
+                “Everything we need to manage our library is finally
+                organized in one place.”
+            </div>
+
+            <div class="quote-author">
+                Library Management Portal
+            </div>
+        </div>
+
+        <div class="visual-footer">
+            © LibraryMS · Smart • Simple • Organized
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         RIGHT / FORM
+    ========================== -->
+
+    <section class="auth-panel">
+
+        <div class="auth-box">
+
+            <!-- Mobile brand -->
+
+            <div class="mobile-brand">
+                <div class="mobile-brand-inner">
+                    <span class="mobile-brand-mark">▤</span>
+                    LibraryMS
+                </div>
+            </div>
+
+
+            <!-- Heading -->
+
+            <div class="auth-heading">
+
+                <h1>
+                    {{ 'Create account' if signup else 'Welcome back' }}
+                </h1>
+
+                <p>
+                    {{ 'Create your library account to get started.'
+                       if signup
+                       else 'Sign in to continue to your library dashboard.' }}
+                </p>
+
+            </div>
+
+
+            <!-- Flash messages -->
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% for category, message in messages %}
+
+                    <div class="flash {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            {% endwith %}
+
+
+            <!-- =========================
+                 LOGIN
+            ========================== -->
+
+            {% if not signup %}
+
+            <form method="post"
+                  action="{{ url_for('login') }}">
+
+                <div class="field">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        id="email"
+                        class="input"
+                        type="email"
+                        name="email"
+                        value="{{ email }}"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        id="password"
+                        class="input"
+                        type="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    class="submit-btn"
+                    type="submit">
+
+                    Sign In
+                </button>
+
+            </form>
+
+
+            <div class="divider">
+                <span>LibraryMS</span>
+            </div>
+
+
+            <div class="info-box">
+                Email/password authentication is used in the Python
+                edition of LibraryMS.
+            </div>
+
+
+            <div class="auth-switch">
+                Don't have an account?
+                <a href="{{ url_for('login') }}?signup=1">
+                    Create account
+                </a>
+            </div>
+
+
+            <!-- =========================
+                 SIGNUP
+            ========================== -->
+
+            {% else %}
+
+            <form method="post"
+                  action="{{ url_for('signup') }}">
+
+                <div class="field">
+
+                    <label for="name">
+                        Full Name
+                    </label>
+
+                    <input
+                        id="name"
+                        class="input"
+                        type="text"
+                        name="name"
+                        value="{{ name|default('') }}"
+                        placeholder="Enter your name"
+                        autocomplete="name"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="signup-email">
+                        Email Address
+                    </label>
+
+                    <input
+                        id="signup-email"
+                        class="input"
+                        type="email"
+                        name="email"
+                        value="{{ email|default('') }}"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="signup-password">
+                        Password
+                    </label>
+
+                    <input
+                        id="signup-password"
+                        class="input"
+                        type="password"
+                        name="password"
+                        minlength="6"
+                        placeholder="Minimum 6 characters"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    class="submit-btn"
+                    type="submit">
+
+                    Create Account
+                </button>
+
+            </form>
+
+
+            <div class="auth-switch">
+                Already have an account?
+                <a href="{{ url_for('login') }}">
+                    Sign in
+                </a>
+            </div>
+
+            {% endif %}
+
+
+            <div class="security-note">
+                <span>◉</span>
+                Your account information stays private
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+</body>
+</html>

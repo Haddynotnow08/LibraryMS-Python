@@ -1,0 +1,1018 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .members-page {
+        max-width: 1250px;
+        margin: 0 auto;
+    }
+
+    /* =========================
+       PAGE HEADER
+    ========================== */
+
+    .members-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 22px;
+    }
+
+    .members-title {
+        margin: 0;
+        color: #111827;
+        font-size: 30px;
+        line-height: 1.1;
+        letter-spacing: -.9px;
+    }
+
+    .members-subtitle {
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    /* =========================
+       TOP STATS
+    ========================== */
+
+    .member-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .summary-card {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 17px;
+        border: 1px solid #edf0f5;
+        border-radius: 15px;
+        background: #fff;
+        box-shadow: 0 7px 22px rgba(15,23,42,.035);
+    }
+
+    .summary-icon {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        color: #4f46e5;
+        background: #eef2ff;
+        font-size: 17px;
+    }
+
+    .summary-number {
+        color: #111827;
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .summary-label {
+        margin-top: 4px;
+        color: #9ca3af;
+        font-size: 11px;
+    }
+
+    /* =========================
+       SEARCH BAR
+    ========================== */
+
+    .members-toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .search-wrap {
+        position: relative;
+        flex: 1;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 13px;
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        height: 46px;
+        padding: 0 14px 0 39px;
+        border: 1px solid #e5e7eb;
+        border-radius: 11px;
+        outline: none;
+        background: #fff;
+        color: #111827;
+        font-size: 13px;
+        transition: .18s ease;
+    }
+
+    .search-input::placeholder {
+        color: #9ca3af;
+    }
+
+    .search-input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99,102,241,.08);
+    }
+
+    .search-btn {
+        height: 46px;
+        padding: 0 19px;
+    }
+
+    /* =========================
+       TABLE CARD
+    ========================== */
+
+    .members-card {
+        overflow: hidden;
+        padding: 0 !important;
+    }
+
+    .table-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding: 17px 20px;
+        border-bottom: 1px solid #eef0f4;
+    }
+
+    .table-heading {
+        margin: 0;
+        color: #111827;
+        font-size: 14px;
+        font-weight: 750;
+    }
+
+    .table-heading-sub {
+        margin-top: 3px;
+        color: #9ca3af;
+        font-size: 11px;
+    }
+
+    .member-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 29px;
+        padding: 0 9px;
+        border-radius: 8px;
+        color: #4338ca;
+        background: #eef2ff;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .table-scroll {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .members-table {
+        width: 100%;
+        min-width: 760px;
+        border-collapse: collapse;
+    }
+
+    .members-table thead th {
+        padding: 12px 20px;
+        text-align: left;
+        color: #9ca3af;
+        background: #fafbfc;
+        border-bottom: 1px solid #eef0f4;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        white-space: nowrap;
+    }
+
+    .members-table tbody td {
+        padding: 15px 20px;
+        border-bottom: 1px solid #f0f2f5;
+        color: #374151;
+        font-size: 12px;
+        vertical-align: middle;
+    }
+
+    .members-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .members-table tbody tr {
+        transition: .16s ease;
+    }
+
+    .members-table tbody tr:hover {
+        background: #fafbff;
+    }
+
+    /* =========================
+       MEMBER CELL
+    ========================== */
+
+    .member-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 240px;
+    }
+
+    .member-avatar {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        color: #fff;
+        background: linear-gradient(145deg, #4f46e5, #818cf8);
+        font-size: 14px;
+        font-weight: 800;
+        box-shadow: 0 5px 13px rgba(79,70,229,.13);
+    }
+
+    .member-cell-name {
+        color: #111827;
+        font-size: 13px;
+        font-weight: 750;
+        line-height: 1.3;
+    }
+
+    .member-cell-email {
+        max-width: 260px;
+        margin-top: 3px;
+        overflow: hidden;
+        color: #9ca3af;
+        font-size: 11px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* =========================
+       MEMBERSHIP ID
+    ========================== */
+
+    .membership-id {
+        display: inline-flex;
+        padding: 6px 8px;
+        border-radius: 7px;
+        color: #4338ca;
+        background: #f5f3ff;
+        border: 1px solid #e9e7ff;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .phone-text {
+        color: #4b5563;
+        white-space: nowrap;
+    }
+
+    /* =========================
+       BORROWED BADGE
+    ========================== */
+
+    .borrowed-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border-radius: 8px;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .borrowed-active {
+        color: #1d4ed8;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+    }
+
+    .borrowed-none {
+        color: #166534;
+        background: #f0fdf4;
+        border: 1px solid #dcfce7;
+    }
+
+    /* =========================
+       ACTIONS
+    ========================== */
+
+    .member-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        white-space: nowrap;
+    }
+
+    .action-btn {
+        min-height: 34px;
+        padding: 0 11px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .action-view {
+        border: 1px solid #e5e7eb;
+        color: #374151;
+        background: #fff;
+        text-decoration: none;
+    }
+
+    .action-view:hover {
+        color: #4338ca;
+        border-color: #dcd9ff;
+        background: #f8f7ff;
+    }
+
+    .action-delete {
+        border: 1px solid #fee2e2;
+        color: #dc2626;
+        background: #fff;
+        cursor: pointer;
+    }
+
+    .action-delete:hover {
+        background: #fef2f2;
+    }
+
+    /* =========================
+       EMPTY
+    ========================== */
+
+    .members-empty {
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 13px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        color: #6366f1;
+        background: #eef2ff;
+        font-size: 20px;
+    }
+
+    .members-empty h3 {
+        margin: 0;
+        color: #374151;
+        font-size: 15px;
+    }
+
+    .members-empty p {
+        margin: 6px 0 0;
+        color: #9ca3af;
+        font-size: 12px;
+    }
+
+    /* =========================
+       ADD MEMBER MODAL
+    ========================== */
+
+    .member-modal {
+        width: min(570px, calc(100vw - 30px));
+        padding: 0;
+        border: 0;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 30px 90px rgba(15,23,42,.25);
+    }
+
+    .member-modal::backdrop {
+        background: rgba(15,23,42,.52);
+        backdrop-filter: blur(5px);
+    }
+
+    .member-modal-inner {
+        padding: 25px;
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 22px;
+    }
+
+    .modal-title {
+        margin: 0;
+        color: #111827;
+        font-size: 19px;
+        letter-spacing: -.4px;
+    }
+
+    .modal-subtitle {
+        margin: 5px 0 0;
+        color: #9ca3af;
+        font-size: 11px;
+    }
+
+    .modal-close {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        color: #6b7280;
+        background: #fff;
+        cursor: pointer;
+    }
+
+    .modal-close:hover {
+        color: #111827;
+        background: #f9fafb;
+    }
+
+    .member-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 17px;
+    }
+
+    .member-form .full {
+        grid-column: 1 / -1;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 1px solid #eef0f4;
+    }
+
+    .modal-cancel {
+        border: 1px solid #e5e7eb;
+        color: #374151;
+        background: #fff;
+    }
+
+    .modal-cancel:hover {
+        background: #f9fafb;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @media (max-width: 900px) {
+
+        .member-summary {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .member-summary .summary-card:last-child {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 650px) {
+
+        .members-head {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .members-head .btn {
+            width: 100%;
+        }
+
+        .members-title {
+            font-size: 26px;
+        }
+
+        .member-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .member-summary .summary-card:last-child {
+            grid-column: auto;
+        }
+
+        .members-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-wrap {
+            width: 100%;
+        }
+
+        .search-btn {
+            width: 100%;
+        }
+
+        .member-modal-inner {
+            padding: 21px;
+        }
+
+        .member-form {
+            grid-template-columns: 1fr;
+        }
+
+        .member-form .full {
+            grid-column: auto;
+        }
+
+        .modal-actions {
+            flex-direction: column-reverse;
+        }
+
+        .modal-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="members-page">
+
+    <!-- =========================
+         PAGE HEADER
+    ========================== -->
+
+    <div class="members-head">
+
+        <div>
+            <h1 class="members-title">
+                Members
+            </h1>
+
+            <p class="members-subtitle">
+                Manage library members and memberships.
+            </p>
+        </div>
+
+        <button
+            class="btn btn-primary"
+            type="button"
+            onclick="openModal('addMember')">
+
+            + Add Member
+
+        </button>
+
+    </div>
+
+
+    <!-- =========================
+         MEMBER SUMMARY
+    ========================== -->
+
+    <div class="member-summary">
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                ◉
+            </div>
+
+            <div>
+                <div class="summary-number">
+                    {{ members|length }}
+                </div>
+
+                <div class="summary-label">
+                    Members shown
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                ▤
+            </div>
+
+            <div>
+                <div class="summary-number">
+                    {% set active_borrowers = members|selectattr('borrowed_books', 'gt', 0)|list|length %}
+                    {{ active_borrowers }}
+                </div>
+
+                <div class="summary-label">
+                    Currently borrowing
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                ID
+            </div>
+
+            <div>
+                <div class="summary-number">
+                    {{ members|length }}
+                </div>
+
+                <div class="summary-label">
+                    Membership records
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         SEARCH
+    ========================== -->
+
+    <form
+        class="members-toolbar"
+        method="get">
+
+        <div class="search-wrap">
+
+            <span class="search-icon">
+                ⌕
+            </span>
+
+            <input
+                class="search-input"
+                type="search"
+                name="q"
+                value="{{ q }}"
+                placeholder="Search name, email or membership ID..."
+                autocomplete="off"
+            >
+
+        </div>
+
+        <button
+            class="btn btn-secondary search-btn"
+            type="submit">
+
+            Search
+
+        </button>
+
+    </form>
+
+
+    <!-- =========================
+         MEMBERS TABLE
+    ========================== -->
+
+    <section class="card members-card">
+
+        <div class="table-topbar">
+
+            <div>
+                <h2 class="table-heading">
+                    All Members
+                </h2>
+
+                <div class="table-heading-sub">
+                    Member accounts and current borrowing status
+                </div>
+            </div>
+
+            <div class="member-count">
+                {{ members|length }}
+            </div>
+
+        </div>
+
+
+        {% if members %}
+
+        <div class="table-scroll">
+
+            <table class="members-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Member</th>
+                        <th>Membership ID</th>
+                        <th>Phone</th>
+                        <th>Borrowed</th>
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for m in members %}
+
+                    <tr>
+
+                        <!-- MEMBER -->
+
+                        <td>
+
+                            <div class="member-cell">
+
+                                <div class="member-avatar">
+                                    {{ (m.name or m.email)[0]|upper }}
+                                </div>
+
+                                <div>
+
+                                    <div class="member-cell-name">
+                                        {{ m.name }}
+                                    </div>
+
+                                    <div class="member-cell-email">
+                                        {{ m.email }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- MEMBERSHIP ID -->
+
+                        <td>
+
+                            <code class="membership-id">
+                                {{ m.membership_id }}
+                            </code>
+
+                        </td>
+
+
+                        <!-- PHONE -->
+
+                        <td>
+
+                            <span class="phone-text">
+                                {{ m.phone or '—' }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- BORROWED -->
+
+                        <td>
+
+                            {% if m.borrowed_books %}
+
+                                <span class="borrowed-badge borrowed-active">
+                                    ● {{ m.borrowed_books }} borrowed
+                                </span>
+
+                            {% else %}
+
+                                <span class="borrowed-badge borrowed-none">
+                                    ✓ None
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- ACTIONS -->
+
+                        <td>
+
+                            <div class="member-actions">
+
+                                <a
+                                    class="btn action-btn action-view"
+                                    href="{{ url_for('member_profile', member_id=m.id) }}">
+
+                                    View
+
+                                </a>
+
+
+                                <form
+                                    method="post"
+                                    action="{{ url_for('delete_member', member_id=m.id) }}"
+                                    onsubmit="return confirm('Delete this member? This action cannot be undone.')"
+                                    style="margin:0">
+
+                                    <button
+                                        type="submit"
+                                        class="btn action-btn action-delete">
+
+                                        Delete
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+        <!-- EMPTY STATE -->
+
+        <div class="members-empty">
+
+            <div class="empty-icon">
+                ◉
+            </div>
+
+            <h3>
+                No members found
+            </h3>
+
+            <p>
+                {% if q %}
+                    No member matches "{{ q }}".
+                {% else %}
+                    Add your first library member to get started.
+                {% endif %}
+            </p>
+
+            {% if not q %}
+
+                <button
+                    class="btn btn-primary"
+                    style="margin-top:18px"
+                    type="button"
+                    onclick="openModal('addMember')">
+
+                    + Add Member
+
+                </button>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+
+<!-- =========================
+     ADD MEMBER MODAL
+========================== -->
+
+<dialog
+    class="member-modal"
+    id="addMember">
+
+    <div class="member-modal-inner">
+
+        <div class="modal-header">
+
+            <div>
+                <h2 class="modal-title">
+                    Add Member
+                </h2>
+
+                <p class="modal-subtitle">
+                    Create a new library membership.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeModal('addMember')"
+                aria-label="Close">
+
+                ✕
+
+            </button>
+
+        </div>
+
+
+        <form
+            method="post"
+            action="{{ url_for('add_member') }}">
+
+            <div class="member-form">
+
+                <div class="field">
+
+                    <label for="add-member-name">
+                        Full Name
+                    </label>
+
+                    <input
+                        id="add-member-name"
+                        class="input"
+                        type="text"
+                        name="name"
+                        placeholder="Enter member name"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="add-member-email">
+                        Email Address
+                    </label>
+
+                    <input
+                        id="add-member-email"
+                        class="input"
+                        type="email"
+                        name="email"
+                        placeholder="member@example.com"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field full">
+
+                    <label for="add-member-phone">
+                        Phone Number
+                    </label>
+
+                    <input
+                        id="add-member-phone"
+                        class="input"
+                        type="text"
+                        name="phone"
+                        placeholder="Enter phone number"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn modal-cancel"
+                    onclick="closeModal('addMember')">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Add Member
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</dialog>
+
+{% endblock %}

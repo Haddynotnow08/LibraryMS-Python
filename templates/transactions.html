@@ -1,0 +1,1279 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .transactions-page {
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+
+    /* =========================
+       PAGE HEADER
+    ========================== */
+
+    .transactions-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 22px;
+    }
+
+    .transactions-title {
+        margin: 0;
+        color: #111827;
+        font-size: 30px;
+        line-height: 1.1;
+        letter-spacing: -.9px;
+    }
+
+    .transactions-subtitle {
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    /* =========================
+       SUMMARY
+    ========================== */
+
+    .transaction-summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 13px;
+        margin-bottom: 19px;
+    }
+
+    .summary-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        border: 1px solid #edf0f5;
+        border-radius: 15px;
+        background: #fff;
+        box-shadow: 0 7px 22px rgba(15,23,42,.035);
+    }
+
+    .summary-icon {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        color: #4f46e5;
+        background: #eef2ff;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .summary-number {
+        color: #111827;
+        font-size: 19px;
+        line-height: 1;
+        font-weight: 850;
+    }
+
+    .summary-label {
+        margin-top: 4px;
+        color: #9ca3af;
+        font-size: 10px;
+    }
+
+    .summary-danger .summary-icon {
+        color: #dc2626;
+        background: #fef2f2;
+    }
+
+    .summary-success .summary-icon {
+        color: #15803d;
+        background: #f0fdf4;
+    }
+
+    /* =========================
+       FILTER BAR
+    ========================== */
+
+    .filter-card {
+        margin-bottom: 18px;
+        padding: 14px !important;
+    }
+
+    .filter-form {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .search-wrap {
+        position: relative;
+        flex: 1;
+    }
+
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        height: 44px;
+        padding: 0 14px 0 37px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        outline: none;
+        background: #f9fafb;
+        color: #111827;
+        font-size: 12px;
+        transition: .18s ease;
+    }
+
+    .search-input::placeholder {
+        color: #9ca3af;
+    }
+
+    .search-input:focus {
+        border-color: #6366f1;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(99,102,241,.08);
+    }
+
+    .transaction-select {
+        width: 145px;
+        height: 44px;
+        padding: 0 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        outline: none;
+        background: #f9fafb;
+        color: #374151;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .transaction-select:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99,102,241,.08);
+    }
+
+    .filter-btn {
+        height: 44px;
+        padding: 0 17px;
+    }
+
+    /* =========================
+       TABLE
+    ========================== */
+
+    .transactions-card {
+        overflow: hidden;
+        padding: 0 !important;
+    }
+
+    .transactions-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 17px 20px;
+        border-bottom: 1px solid #eef0f4;
+    }
+
+    .transactions-card-title {
+        margin: 0;
+        color: #111827;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .transactions-card-caption {
+        margin-top: 3px;
+        color: #9ca3af;
+        font-size: 10px;
+    }
+
+    .results-count {
+        min-width: 33px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 8px;
+        border-radius: 8px;
+        color: #4338ca;
+        background: #eef2ff;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .table-scroll {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .transactions-table {
+        width: 100%;
+        min-width: 1040px;
+        border-collapse: collapse;
+    }
+
+    .transactions-table th {
+        padding: 12px 17px;
+        text-align: left;
+        color: #9ca3af;
+        background: #fafbfc;
+        border-bottom: 1px solid #eef0f4;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .075em;
+        white-space: nowrap;
+    }
+
+    .transactions-table td {
+        padding: 15px 17px;
+        border-bottom: 1px solid #f0f2f5;
+        color: #374151;
+        font-size: 11px;
+        vertical-align: middle;
+    }
+
+    .transactions-table tbody tr {
+        transition: .15s ease;
+    }
+
+    .transactions-table tbody tr:hover {
+        background: #fafbff;
+    }
+
+    .transactions-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    /* =========================
+       MEMBER / BOOK
+    ========================== */
+
+    .person-cell,
+    .book-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 175px;
+    }
+
+    .person-avatar {
+        width: 37px;
+        height: 37px;
+        flex: 0 0 37px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        color: #fff;
+        background: linear-gradient(145deg, #4f46e5, #818cf8);
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .book-cover {
+        width: 34px;
+        height: 42px;
+        flex: 0 0 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 5px 8px 8px 5px;
+        color: #fff;
+        background: linear-gradient(145deg, #1e1b4b, #4f46e5);
+        font-size: 13px;
+        position: relative;
+    }
+
+    .book-cover::before {
+        content: "";
+        position: absolute;
+        left: 4px;
+        top: 6px;
+        bottom: 6px;
+        width: 2px;
+        border-radius: 2px;
+        background: rgba(255,255,255,.25);
+    }
+
+    .person-name,
+    .book-name {
+        color: #111827;
+        font-size: 12px;
+        font-weight: 750;
+        line-height: 1.35;
+    }
+
+    .person-id,
+    .book-author {
+        margin-top: 3px;
+        color: #9ca3af;
+        font-size: 9px;
+    }
+
+    .membership-code {
+        display: inline-flex;
+        padding: 4px 7px;
+        border-radius: 6px;
+        color: #4338ca;
+        background: #f5f3ff;
+        border: 1px solid #e9e7ff;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    /* =========================
+       STATUS
+    ========================== */
+
+    .tx-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 8px;
+        border-radius: 7px;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        border: 1px solid transparent;
+        white-space: nowrap;
+    }
+
+    .tx-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+    }
+
+    .status-issued {
+        color: #1d4ed8;
+        background: #eff6ff;
+        border-color: #dbeafe;
+    }
+
+    .status-issued .tx-dot {
+        background: #3b82f6;
+    }
+
+    .status-overdue {
+        color: #b91c1c;
+        background: #fef2f2;
+        border-color: #fee2e2;
+    }
+
+    .status-overdue .tx-dot {
+        background: #ef4444;
+    }
+
+    .status-returned {
+        color: #166534;
+        background: #f0fdf4;
+        border-color: #dcfce7;
+    }
+
+    .status-returned .tx-dot {
+        background: #22c55e;
+    }
+
+    .status-pending {
+        color: #92400e;
+        background: #fffbeb;
+        border-color: #fef3c7;
+    }
+
+    .status-pending .tx-dot {
+        background: #f59e0b;
+    }
+
+    /* =========================
+       FINE
+    ========================== */
+
+    .fine-amount {
+        color: #374151;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .fine-active {
+        color: #dc2626;
+    }
+
+    .dash-muted {
+        color: #9ca3af;
+    }
+
+    /* =========================
+       RETURN BUTTON
+    ========================== */
+
+    .return-form {
+        margin: 0;
+    }
+
+    .return-btn {
+        height: 33px;
+        padding: 0 11px;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        color: #15803d;
+        background: #f0fdf4;
+        cursor: pointer;
+        font-size: 10px;
+        font-weight: 800;
+        transition: .16s ease;
+    }
+
+    .return-btn:hover {
+        background: #dcfce7;
+        border-color: #86efac;
+    }
+
+    /* =========================
+       EMPTY STATE
+    ========================== */
+
+    .transactions-empty {
+        padding: 62px 20px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 55px;
+        height: 55px;
+        margin: 0 auto 13px;
+        display: grid;
+        place-items: center;
+        border-radius: 16px;
+        color: #6366f1;
+        background: #eef2ff;
+        font-size: 20px;
+    }
+
+    .transactions-empty h3 {
+        margin: 0;
+        color: #374151;
+        font-size: 15px;
+    }
+
+    .transactions-empty p {
+        margin: 6px 0 0;
+        color: #9ca3af;
+        font-size: 11px;
+    }
+
+    /* =========================
+       ISSUE MODAL
+    ========================== */
+
+    .issue-modal {
+        width: min(570px, calc(100vw - 30px));
+        padding: 0;
+        border: 0;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 30px 90px rgba(15,23,42,.25);
+    }
+
+    .issue-modal::backdrop {
+        background: rgba(15,23,42,.52);
+        backdrop-filter: blur(5px);
+    }
+
+    .issue-modal-inner {
+        padding: 25px;
+    }
+
+    .issue-modal-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 21px;
+    }
+
+    .issue-modal-title {
+        margin: 0;
+        color: #111827;
+        font-size: 19px;
+        letter-spacing: -.4px;
+    }
+
+    .issue-modal-subtitle {
+        margin: 5px 0 0;
+        color: #9ca3af;
+        font-size: 11px;
+    }
+
+    .modal-close {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        color: #6b7280;
+        background: #fff;
+        cursor: pointer;
+    }
+
+    .modal-close:hover {
+        color: #111827;
+        background: #f9fafb;
+    }
+
+    .issue-field {
+        margin-bottom: 17px;
+    }
+
+    .issue-field label {
+        display: block;
+        margin-bottom: 7px;
+        color: #374151;
+        font-size: 11px;
+        font-weight: 750;
+    }
+
+    .issue-select {
+        width: 100%;
+        height: 47px;
+        padding: 0 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        outline: none;
+        color: #374151;
+        background: #f9fafb;
+        font-size: 12px;
+    }
+
+    .issue-select:focus {
+        border-color: #6366f1;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(99,102,241,.08);
+    }
+
+    .loan-info {
+        padding: 15px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #edf0f5;
+    }
+
+    .loan-info-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .loan-info-title {
+        color: #374151;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .loan-duration {
+        color: #4338ca;
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .loan-info-text {
+        margin-top: 5px;
+        color: #9ca3af;
+        font-size: 10px;
+        line-height: 1.55;
+    }
+
+    .issue-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+        margin-top: 21px;
+        padding-top: 17px;
+        border-top: 1px solid #eef0f4;
+    }
+
+    .cancel-btn {
+        border: 1px solid #e5e7eb;
+        color: #374151;
+        background: #fff;
+    }
+
+    .cancel-btn:hover {
+        background: #f9fafb;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @media (max-width: 1000px) {
+        .transaction-summary {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 700px) {
+
+        .transactions-head {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .transactions-title {
+            font-size: 26px;
+        }
+
+        .transactions-head .btn {
+            width: 100%;
+        }
+
+        .filter-form {
+            flex-wrap: wrap;
+        }
+
+        .search-wrap {
+            flex: 1 1 100%;
+        }
+
+        .transaction-select {
+            flex: 1;
+            width: auto;
+        }
+
+        .filter-btn {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .transaction-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .transaction-select,
+        .filter-btn {
+            flex: 1 1 100%;
+            width: 100%;
+        }
+
+        .issue-modal-inner {
+            padding: 21px;
+        }
+
+        .issue-actions {
+            flex-direction: column-reverse;
+        }
+
+        .issue-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="transactions-page">
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <div class="transactions-head">
+
+        <div>
+
+            <h1 class="transactions-title">
+                Transactions
+            </h1>
+
+            <p class="transactions-subtitle">
+                Issue, return and track borrowed books.
+            </p>
+
+        </div>
+
+        <button
+            class="btn btn-primary"
+            type="button"
+            onclick="openModal('issue')">
+
+            + Issue Book
+
+        </button>
+
+    </div>
+
+
+    <!-- =========================
+         SUMMARY
+    ========================== -->
+
+    <div class="transaction-summary">
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                ⇄
+            </div>
+
+            <div>
+                <div class="summary-number">
+                    {{ transactions|length }}
+                </div>
+
+                <div class="summary-label">
+                    Transactions shown
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                ↗
+            </div>
+
+            <div>
+                <div class="summary-number">
+                    {{ transactions|selectattr('status', 'equalto', 'issued')|list|length }}
+                </div>
+
+                <div class="summary-label">
+                    Currently issued
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card summary-danger">
+
+            <div class="summary-icon">
+                !
+            </div>
+
+            <div>
+                <div class="summary-number">
+                    {{ transactions|selectattr('status', 'equalto', 'overdue')|list|length }}
+                </div>
+
+                <div class="summary-label">
+                    Overdue
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card summary-success">
+
+            <div class="summary-icon">
+                ✓
+            </div>
+
+            <div>
+                <div class="summary-number">
+                    {{ transactions|selectattr('status', 'equalto', 'returned')|list|length }}
+                </div>
+
+                <div class="summary-label">
+                    Returned
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         SEARCH / FILTER
+    ========================== -->
+
+    <section class="card filter-card">
+
+        <form
+            class="filter-form"
+            method="get">
+
+            <div class="search-wrap">
+
+                <span class="search-icon">
+                    ⌕
+                </span>
+
+                <input
+                    class="search-input"
+                    type="search"
+                    name="q"
+                    value="{{ q }}"
+                    placeholder="Search member or book..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <select
+                class="transaction-select"
+                name="filter">
+
+                <option value="All"
+                    {% if filter_name == 'All' %}selected{% endif %}>
+                    All Transactions
+                </option>
+
+                <option value="Issued"
+                    {% if filter_name == 'Issued' %}selected{% endif %}>
+                    Issued
+                </option>
+
+                <option value="Overdue"
+                    {% if filter_name == 'Overdue' %}selected{% endif %}>
+                    Overdue
+                </option>
+
+                <option value="Returned"
+                    {% if filter_name == 'Returned' %}selected{% endif %}>
+                    Returned
+                </option>
+
+            </select>
+
+
+            <button
+                class="btn btn-secondary filter-btn"
+                type="submit">
+
+                Filter
+
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <!-- =========================
+         TRANSACTIONS TABLE
+    ========================== -->
+
+    <section class="card transactions-card">
+
+        <div class="transactions-card-head">
+
+            <div>
+
+                <h2 class="transactions-card-title">
+                    Library Transactions
+                </h2>
+
+                <div class="transactions-card-caption">
+                    Complete issue and return activity
+                </div>
+
+            </div>
+
+            <div class="results-count">
+                {{ transactions|length }}
+            </div>
+
+        </div>
+
+
+        {% if transactions %}
+
+        <div class="table-scroll">
+
+            <table class="transactions-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Member</th>
+                        <th>Book</th>
+                        <th>Issued</th>
+                        <th>Due</th>
+                        <th>Status</th>
+                        <th>Fine</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for tx in transactions %}
+
+                    <tr>
+
+                        <!-- MEMBER -->
+
+                        <td>
+
+                            <div class="person-cell">
+
+                                <div class="person-avatar">
+                                    {{ (tx.member_name or tx.membership_id)[0]|upper }}
+                                </div>
+
+                                <div>
+
+                                    <div class="person-name">
+                                        {{ tx.member_name }}
+                                    </div>
+
+                                    <div class="person-id">
+                                        {{ tx.membership_id }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- BOOK -->
+
+                        <td>
+
+                            <div class="book-cell">
+
+                                <div class="book-cover">
+                                    ▤
+                                </div>
+
+                                <div>
+
+                                    <div class="book-name">
+                                        {{ tx.book_title }}
+                                    </div>
+
+                                    <div class="book-author">
+                                        by {{ tx.book_author }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- ISSUED -->
+
+                        <td>
+                            {{ fmt_date(tx.issued_at) }}
+                        </td>
+
+
+                        <!-- DUE -->
+
+                        <td>
+
+                            <span class="{{ 'fine-active' if tx.status == 'overdue' else '' }}">
+                                {{ fmt_date(tx.due_date) }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- STATUS -->
+
+                        <td>
+
+                            <span class="tx-status status-{{ tx.status }}">
+
+                                <span class="tx-dot"></span>
+
+                                {{ tx.status|title }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- FINE -->
+
+                        <td>
+
+                            {% if tx.calculated_fine %}
+
+                                <span class="fine-amount fine-active">
+                                    ₹{{ tx.calculated_fine }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="fine-amount">
+                                    ₹0
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- ACTION -->
+
+                        <td>
+
+                            {% if tx.status != 'returned' %}
+
+                                <form
+                                    class="return-form"
+                                    method="post"
+                                    action="{{ url_for('return_book', tx_id=tx.id) }}"
+                                    onsubmit="return confirm('Return this book?')">
+
+                                    <button
+                                        class="return-btn"
+                                        type="submit">
+
+                                        ✓ Return
+
+                                    </button>
+
+                                </form>
+
+                            {% else %}
+
+                                <span class="dash-muted">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="transactions-empty">
+
+            <div class="empty-icon">
+                ⇄
+            </div>
+
+            <h3>
+                No transactions found
+            </h3>
+
+            <p>
+                {% if q or filter_name != 'All' %}
+                    Try changing your search or filter.
+                {% else %}
+                    No book issue or return activity is available yet.
+                {% endif %}
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+
+<!-- =========================
+     ISSUE BOOK MODAL
+========================== -->
+
+<dialog
+    class="issue-modal"
+    id="issue">
+
+    <div class="issue-modal-inner">
+
+        <div class="issue-modal-head">
+
+            <div>
+
+                <h2 class="issue-modal-title">
+                    Issue Book
+                </h2>
+
+                <p class="issue-modal-subtitle">
+                    Create a new borrowing transaction.
+                </p>
+
+            </div>
+
+            <button
+                class="modal-close"
+                type="button"
+                onclick="closeModal('issue')"
+                aria-label="Close">
+
+                ✕
+
+            </button>
+
+        </div>
+
+
+        <form
+            method="post"
+            action="{{ url_for('issue_book') }}">
+
+
+            <!-- MEMBER -->
+
+            <div class="issue-field">
+
+                <label for="issue-member">
+                    Member
+                </label>
+
+                <select
+                    id="issue-member"
+                    class="issue-select"
+                    name="member_id"
+                    required>
+
+                    <option value="">
+                        Select member
+                    </option>
+
+                    {% for m in members %}
+
+                    <option value="{{ m.id }}">
+
+                        {{ m.name }}
+                        —
+                        {{ m.membership_id }}
+                        ({{ m.borrowed_books }}/{{ max_borrow }})
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- BOOK -->
+
+            <div class="issue-field">
+
+                <label for="issue-book">
+                    Book
+                </label>
+
+                <select
+                    id="issue-book"
+                    class="issue-select"
+                    name="book_id"
+                    required>
+
+                    <option value="">
+                        Select book
+                    </option>
+
+                    {% for b in books %}
+
+                    <option
+                        value="{{ b.id }}"
+                        {% if not b.available_copies %}disabled{% endif %}>
+
+                        {{ b.title }}
+                        —
+                        {{ b.available_copies }}
+                        available
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- LOAN INFORMATION -->
+
+            <div class="loan-info">
+
+                <div class="loan-info-top">
+
+                    <span class="loan-info-title">
+                        Loan Period
+                    </span>
+
+                    <span class="loan-duration">
+                        {{ loan_days }} days
+                    </span>
+
+                </div>
+
+                <div class="loan-info-text">
+                    Fine:
+                    <strong>
+                        ₹{{ fine_per_day }}/day
+                    </strong>
+                    after the due date.
+                </div>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="issue-actions">
+
+                <button
+                    type="button"
+                    class="btn cancel-btn"
+                    onclick="closeModal('issue')">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Confirm Issue
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</dialog>
+
+{% endblock %}

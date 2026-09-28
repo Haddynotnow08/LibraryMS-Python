@@ -1,0 +1,1047 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="dashboard-page">
+
+    <!-- =========================
+         WELCOME HEADER
+    ========================== -->
+
+    <section class="dashboard-hero">
+
+        <div class="hero-content">
+
+            <div class="hero-eyebrow">
+                {{ now if now else 'LIBRARY MANAGEMENT SYSTEM' }}
+            </div>
+
+            <h1>
+                Hey, {{ user['name'] }}!
+            </h1>
+
+            <p>
+                {% if user['role'] == 'admin' %}
+                    Here's what's happening with your library today.
+                {% else %}
+                    Welcome to the library portal. Browse books and check your borrowed books.
+                {% endif %}
+            </p>
+
+        </div>
+
+
+        <div class="hero-mark">
+            <div class="hero-book">▣</div>
+        </div>
+
+    </section>
+
+
+    {% if user['role'] == 'admin' %}
+
+    <!-- =========================
+         STATISTICS
+    ========================== -->
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">OVERVIEW</span>
+            <h2>Library Statistics</h2>
+        </div>
+
+        <span class="live-status">
+            <span class="status-dot"></span>
+            Live data
+        </span>
+
+    </div>
+
+
+    <div class="stats-grid">
+
+
+        <!-- BOOKS -->
+
+        <a
+            class="stat-card"
+            href="{{ url_for('books') }}"
+        >
+
+            <div class="stat-top">
+
+                <div class="stat-icon books-icon">
+                    ▣
+                </div>
+
+                <span class="stat-arrow">
+                    ↗
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                {{ stats.books }}
+            </div>
+
+            <div class="stat-label">
+                Total Books
+            </div>
+
+            <div class="stat-description">
+                Books in your catalogue
+            </div>
+
+        </a>
+
+
+        <!-- MEMBERS -->
+
+        <a
+            class="stat-card"
+            href="{{ url_for('members') }}"
+        >
+
+            <div class="stat-top">
+
+                <div class="stat-icon members-icon">
+                    ♙
+                </div>
+
+                <span class="stat-arrow">
+                    ↗
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                {{ stats.members }}
+            </div>
+
+            <div class="stat-label">
+                Total Members
+            </div>
+
+            <div class="stat-description">
+                Registered library members
+            </div>
+
+        </a>
+
+
+        <!-- BORROWED -->
+
+        <a
+            class="stat-card"
+            href="{{ url_for('transactions') }}"
+        >
+
+            <div class="stat-top">
+
+                <div class="stat-icon borrowed-icon">
+                    ⇄
+                </div>
+
+                <span class="stat-arrow">
+                    ↗
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                {{ stats.borrowed }}
+            </div>
+
+            <div class="stat-label">
+                Books Borrowed
+            </div>
+
+            <div class="stat-description">
+                Currently issued books
+            </div>
+
+        </a>
+
+
+        <!-- AVAILABLE -->
+
+        <a
+            class="stat-card"
+            href="{{ url_for('books') }}"
+        >
+
+            <div class="stat-top">
+
+                <div class="stat-icon available-icon">
+                    ✓
+                </div>
+
+                <span class="stat-arrow">
+                    ↗
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+                {{ stats.available }}
+            </div>
+
+            <div class="stat-label">
+                Available Now
+            </div>
+
+            <div class="stat-description">
+                Ready to be borrowed
+            </div>
+
+        </a>
+
+    </div>
+
+
+    <!-- =========================
+         QUICK ACTIONS
+    ========================== -->
+
+    <div class="section-heading quick-heading">
+
+        <div>
+            <span class="section-label">SHORTCUTS</span>
+            <h2>Quick Actions</h2>
+        </div>
+
+    </div>
+
+
+    <div class="quick-grid">
+
+
+        <!-- MEMBERS -->
+
+        <a
+            class="quick-card"
+            href="{{ url_for('members') }}"
+        >
+
+            <div class="quick-icon">
+                ♙
+            </div>
+
+            <div class="quick-content">
+
+                <h3>
+                    Manage Members
+                </h3>
+
+                <p>
+                    Add, edit or view library members.
+                </p>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- BOOKS -->
+
+        <a
+            class="quick-card"
+            href="{{ url_for('books') }}"
+        >
+
+            <div class="quick-icon">
+                ▣
+            </div>
+
+            <div class="quick-content">
+
+                <h3>
+                    Manage Books
+                </h3>
+
+                <p>
+                    Add new books or update the catalogue.
+                </p>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- TRANSACTIONS -->
+
+        <a
+            class="quick-card"
+            href="{{ url_for('transactions') }}"
+        >
+
+            <div class="quick-icon">
+                ⇄
+            </div>
+
+            <div class="quick-content">
+
+                <h3>
+                    Track Borrowings
+                </h3>
+
+                <p>
+                    Issue and return books.
+                </p>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- TO-DO -->
+
+        <a
+            class="quick-card"
+            href="{{ url_for('todo') }}"
+        >
+
+            <div class="quick-icon">
+                ✓
+            </div>
+
+            <div class="quick-content">
+
+                <h3>
+                    My To-Do List
+                </h3>
+
+                <p>
+                    Organize tasks and daily work.
+                </p>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- CALCULATOR -->
+
+        <a
+            class="quick-card"
+            href="{{ url_for('calculator') }}"
+        >
+
+            <div class="quick-icon">
+                ⌗
+            </div>
+
+            <div class="quick-content">
+
+                <h3>
+                    Calculator
+                </h3>
+
+                <p>
+                    Quick calculations for study or library work.
+                </p>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+    </div>
+
+
+    {% else %}
+
+
+    <!-- =========================
+         MEMBER DASHBOARD
+    ========================== -->
+
+    <div class="member-welcome">
+
+        <div class="member-icon">
+            ▣
+        </div>
+
+        <div>
+
+            <span class="section-label">
+                LIBRARY PORTAL
+            </span>
+
+            <h2>
+                Welcome to the Library
+            </h2>
+
+            <p>
+                Browse the catalogue and check your current borrowings.
+            </p>
+
+            <div class="member-actions">
+
+                <a
+                    class="btn btn-primary"
+                    href="{{ url_for('books') }}"
+                >
+                    Browse Books
+                </a>
+
+                <a
+                    class="btn btn-secondary"
+                    href="{{ url_for('my_borrows') }}"
+                >
+                    My Borrows
+                </a>
+
+                <a
+                    class="btn btn-secondary"
+                    href="{{ url_for('todo') }}"
+                >
+                    To-Do List
+                </a>
+
+                <a
+                    class="btn btn-secondary"
+                    href="{{ url_for('calculator') }}"
+                >
+                    Calculator
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {% endif %}
+
+</div>
+
+
+<!-- =========================
+     DASHBOARD STYLES
+========================== -->
+
+<style>
+
+.dashboard-page {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.dashboard-hero {
+    position: relative;
+    overflow: hidden;
+
+    min-height: 205px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 38px 42px;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #111827 0%,
+            #1f2937 55%,
+            #374151 100%
+        );
+
+    color: white;
+
+    box-shadow:
+        0 15px 40px rgba(16,24,40,.12);
+}
+
+
+.dashboard-hero::before {
+    content: "";
+
+    position: absolute;
+
+    width: 320px;
+    height: 320px;
+
+    border-radius: 50%;
+
+    right: -120px;
+    top: -150px;
+
+    border: 1px solid rgba(255,255,255,.08);
+}
+
+
+.dashboard-hero::after {
+    content: "";
+
+    position: absolute;
+
+    width: 210px;
+    height: 210px;
+
+    border-radius: 50%;
+
+    right: 80px;
+    bottom: -160px;
+
+    border: 1px solid rgba(255,255,255,.06);
+}
+
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+
+.hero-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+
+    letter-spacing: 1.5px;
+
+    text-transform: uppercase;
+
+    color: #98a2b3;
+
+    margin-bottom: 9px;
+}
+
+
+.dashboard-hero h1 {
+    margin: 0;
+
+    font-size: 31px;
+    font-weight: 700;
+
+    letter-spacing: -.9px;
+}
+
+
+.dashboard-hero p {
+    margin: 9px 0 0;
+
+    color: #cbd5e1;
+
+    font-size: 13px;
+
+    max-width: 600px;
+}
+
+
+.hero-mark {
+    position: relative;
+    z-index: 2;
+
+    width: 95px;
+    height: 95px;
+
+    border-radius: 25px;
+
+    display: grid;
+    place-items: center;
+
+    background: rgba(255,255,255,.06);
+
+    border: 1px solid rgba(255,255,255,.1);
+
+    backdrop-filter: blur(8px);
+}
+
+
+.hero-book {
+    font-size: 38px;
+
+    color: #e5e7eb;
+}
+
+
+/* =========================
+   SECTION HEADING
+========================= */
+
+.section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+
+    margin: 32px 2px 15px;
+}
+
+
+.section-label {
+    display: block;
+
+    font-size: 9px;
+    font-weight: 700;
+
+    letter-spacing: 1.2px;
+
+    color: #98a2b3;
+
+    margin-bottom: 5px;
+}
+
+
+.section-heading h2 {
+    margin: 0;
+
+    font-size: 18px;
+
+    color: #101828;
+
+    letter-spacing: -.3px;
+}
+
+
+.live-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    color: #667085;
+
+    font-size: 10px;
+
+    padding: 6px 9px;
+
+    border: 1px solid #eaecf0;
+
+    background: white;
+
+    border-radius: 7px;
+}
+
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #12b76a;
+}
+
+
+/* =========================
+   STATS
+========================= */
+
+.stats-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+
+.stat-card {
+    display: block;
+
+    padding: 20px;
+
+    background: white;
+
+    border: 1px solid #eaecf0;
+
+    border-radius: 15px;
+
+    text-decoration: none;
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        border-color .2s ease;
+}
+
+
+.stat-card:hover {
+    transform: translateY(-3px);
+
+    border-color: #d0d5dd;
+
+    box-shadow:
+        0 12px 30px rgba(16,24,40,.08);
+}
+
+
+.stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+
+.stat-icon {
+    width: 42px;
+    height: 42px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+
+    font-size: 18px;
+
+    font-weight: 600;
+}
+
+
+.books-icon {
+    background: #eef4ff;
+    color: #175cd3;
+}
+
+
+.members-icon {
+    background: #f4f3ff;
+    color: #6938ef;
+}
+
+
+.borrowed-icon {
+    background: #fff6ed;
+    color: #c4320a;
+}
+
+
+.available-icon {
+    background: #ecfdf3;
+    color: #027a48;
+}
+
+
+.stat-arrow {
+    color: #98a2b3;
+
+    font-size: 17px;
+
+    transition: transform .2s ease;
+}
+
+
+.stat-card:hover .stat-arrow {
+    transform: translate(2px,-2px);
+}
+
+
+.stat-value {
+    font-size: 28px;
+
+    line-height: 1;
+
+    font-weight: 700;
+
+    color: #101828;
+
+    letter-spacing: -.8px;
+}
+
+
+.stat-label {
+    margin-top: 8px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: #344054;
+}
+
+
+.stat-description {
+    margin-top: 4px;
+
+    color: #98a2b3;
+
+    font-size: 10px;
+}
+
+
+/* =========================
+   QUICK ACTIONS
+========================= */
+
+.quick-heading {
+    margin-top: 34px;
+}
+
+
+.quick-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 15px;
+}
+
+
+.quick-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    position: relative;
+
+    padding: 18px;
+
+    background: white;
+
+    border: 1px solid #eaecf0;
+
+    border-radius: 14px;
+
+    text-decoration: none;
+
+    transition: all .2s ease;
+}
+
+
+.quick-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #d0d5dd;
+
+    box-shadow:
+        0 10px 25px rgba(16,24,40,.07);
+}
+
+
+.quick-icon {
+    width: 43px;
+    height: 43px;
+
+    flex-shrink: 0;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+
+    background: #f2f4f7;
+
+    color: #344054;
+
+    font-size: 18px;
+}
+
+
+.quick-content {
+    min-width: 0;
+}
+
+
+.quick-content h3 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 13px;
+}
+
+
+.quick-content p {
+    margin: 4px 0 0;
+
+    color: #98a2b3;
+
+    font-size: 10px;
+
+    line-height: 1.5;
+}
+
+
+.quick-arrow {
+    margin-left: auto;
+
+    color: #98a2b3;
+
+    font-size: 17px;
+
+    transition: transform .2s ease;
+}
+
+
+.quick-card:hover .quick-arrow {
+    transform: translateX(3px);
+
+    color: #344054;
+}
+
+
+/* =========================
+   MEMBER AREA
+========================= */
+
+.member-welcome {
+    margin-top: 28px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 24px;
+
+    padding: 32px;
+
+    background: white;
+
+    border: 1px solid #eaecf0;
+
+    border-radius: 17px;
+}
+
+
+.member-icon {
+    width: 72px;
+    height: 72px;
+
+    flex-shrink: 0;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 18px;
+
+    background: #111827;
+
+    color: white;
+
+    font-size: 28px;
+}
+
+
+.member-welcome h2 {
+    margin: 0;
+
+    font-size: 21px;
+
+    color: #101828;
+}
+
+
+.member-welcome p {
+    margin: 7px 0 0;
+
+    color: #667085;
+
+    font-size: 12px;
+}
+
+
+.member-actions {
+    display: flex;
+
+    gap: 9px;
+
+    margin-top: 18px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1050px) {
+
+    .stats-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .quick-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .dashboard-hero {
+        min-height: 180px;
+
+        padding: 27px 24px;
+    }
+
+    .dashboard-hero h1 {
+        font-size: 25px;
+    }
+
+    .hero-mark {
+        display: none;
+    }
+
+    .stats-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+    .section-heading {
+        align-items: start;
+    }
+
+    .live-status {
+        display: none;
+    }
+
+    .member-welcome {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        padding: 24px;
+    }
+
+    .member-actions {
+        flex-direction: column;
+    }
+
+    .member-actions .btn {
+        width: 100%;
+
+        text-align: center;
+    }
+
+}
+
+</style>
+
+{% endblock %}
